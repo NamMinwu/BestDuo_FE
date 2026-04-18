@@ -18,13 +18,14 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 import { Skeleton } from "@workspace/ui/components/skeleton"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@workspace/ui/components/tabs"
 
 import { DuoImages } from "@/components/duo-images"
+import { DuoTierBadge } from "@/components/duo-tier-badge"
 import { MatchupSortFilter } from "@/components/matchup-sort-filter"
 import {
   getBottomDuoCounters,
   getBottomDuoMatchups,
+  getBottomDuoStats,
   parseMatchupSort,
   parseTier,
   type Tier,
@@ -54,6 +55,30 @@ function mainHref(tier: Tier, patchVersion: string | undefined) {
   return q ? `/?${q}` : "/"
 }
 
+function StatCard({
+  label,
+  value,
+  sub,
+}: {
+  label: string
+  value: string
+  sub?: string
+}) {
+  return (
+    <div className="bg-muted/30 rounded-lg border border-border px-3 py-2.5 sm:px-4 sm:py-3">
+      <div className="text-muted-foreground text-[11px] sm:text-xs">{label}</div>
+      <div className="mt-1 text-lg font-semibold tabular-nums sm:text-xl">
+        {value}
+      </div>
+      {sub ? (
+        <div className="text-muted-foreground mt-0.5 text-[11px] tabular-nums sm:text-xs">
+          {sub}
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 export default async function DuoDetailPage({
   params,
   searchParams,
@@ -75,7 +100,7 @@ export default async function DuoDetailPage({
 
   const duoPath = `/duo/${encodeURIComponent(adcId)}/${encodeURIComponent(supId)}`
 
-  const [matchups, counters] = await Promise.all([
+  const [matchups, counters, stats] = await Promise.all([
     getBottomDuoMatchups({
       tier,
       adcChampionId: adcId,
@@ -88,15 +113,23 @@ export default async function DuoDetailPage({
       adcChampionId: adcId,
       supChampionId: supId,
       patchVersion: patchParam,
-      size: 50,
+    }),
+    getBottomDuoStats({
+      tier,
+      adcChampionId: adcId,
+      supChampionId: supId,
+      patchVersion: patchParam,
     }),
   ])
 
   const { myDuo } = matchups
+  const myStat = stats.items.find(
+    (it) => it.adcId === adcId && it.supId === supId,
+  )
 
   return (
-    <div className="min-h-svh bg-background px-4 py-8 md:px-8">
-      <div className="mx-auto max-w-6xl space-y-8">
+    <div className="min-h-svh bg-background px-3 py-5 sm:px-4 sm:py-8 md:px-8">
+      <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
             href={mainHref(tier, patchParam)}
@@ -106,130 +139,71 @@ export default async function DuoDetailPage({
           </Link>
         </div>
 
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-8">
-          <DuoImages
-            adcImage={myDuo.adcImage}
-            supImage={myDuo.supImage}
-            adcName={myDuo.adcName}
-            supName={myDuo.supName}
-            size={56}
-          />
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-              {myDuo.adcName}{" "}
-              <span className="text-muted-foreground font-normal">+</span>{" "}
-              {myDuo.supName}
-            </h1>
-            <p className="text-muted-foreground mt-1 text-sm">
-              티어 {tier.replace(/_/g, " ")} · 패치 {matchups.patchVersion} ·
-              표본 {matchups.totalGames.toLocaleString()}게임
-            </p>
+        <header className="space-y-5 sm:space-y-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-6">
+            <DuoImages
+              adcImage={myDuo.adcImage}
+              supImage={myDuo.supImage}
+              adcName={myDuo.adcName}
+              supName={myDuo.supName}
+              size={64}
+            />
+            <div className="flex-1">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <h1 className="text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">
+                  {myDuo.adcName}{" "}
+                  <span className="text-muted-foreground font-normal">+</span>{" "}
+                  {myDuo.supName}
+                </h1>
+                {myStat ? (
+                  <DuoTierBadge tier={myStat.duoTier} size="lg" />
+                ) : null}
+              </div>
+              <p className="text-muted-foreground mt-1 text-xs sm:text-sm">
+                티어 {tier.replace(/_/g, " ")} · 패치 {matchups.patchVersion} ·
+                표본 {matchups.totalGames.toLocaleString()}게임
+              </p>
+            </div>
           </div>
+
+          {myStat ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <StatCard
+                label="승률"
+                value={formatPercent(myStat.winRate)}
+                sub={`랭킹 #${myStat.ranking}`}
+              />
+              <StatCard label="픽률" value={formatPercent(myStat.pickRate)} />
+              <StatCard
+                label="게임 수"
+                value={myStat.games.toLocaleString()}
+              />
+              <StatCard
+                label="랭크 변동"
+                value={
+                  myStat.rankDelta == null || myStat.rankDelta === 0
+                    ? "–"
+                    : myStat.rankDelta > 0
+                      ? `▲ ${myStat.rankDelta}`
+                      : `▼ ${Math.abs(myStat.rankDelta)}`
+                }
+              />
+            </div>
+          ) : null}
         </header>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <Suspense fallback={<Skeleton className="h-10 w-[200px]" />}>
-            <MatchupSortFilter
-              key={matchupSort}
-              sort={matchupSort}
-              duoPath={duoPath}
-            />
-          </Suspense>
-        </div>
-
-        <Tabs defaultValue="matchups" className="w-full">
-          <TabsList>
-            <TabsTrigger value="matchups">상대 듀오 매치업</TabsTrigger>
-            <TabsTrigger value="counters">
-              카운터 ({counters.counterSize})
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="matchups" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>매치업</CardTitle>
-                <CardDescription>
-                  이 듀오가 마주친 상대 바텀 조합별 승률·픽률입니다.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>상대 듀오</TableHead>
-                      <TableHead className="text-right">픽률</TableHead>
-                      <TableHead className="text-right">승률</TableHead>
-                      <TableHead className="text-right">게임</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {matchups.items.length === 0 ? (
-                      <TableRow>
-                        <TableCell
-                          colSpan={4}
-                          className="text-muted-foreground py-10 text-center"
-                        >
-                          매치업 데이터가 없습니다.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      matchups.items.map((row) => (
-                        <TableRow
-                          key={`${row.oppAdcId}-${row.oppSupId}`}
-                        >
-                          <TableCell>
-                            <Link
-                              href={detailHref(
-                                row.oppAdcId,
-                                row.oppSupId,
-                                tier,
-                                patchParam,
-                                matchupSort,
-                              )}
-                              className="hover:bg-muted/50 -m-2 flex items-center gap-3 rounded-md p-2 transition-colors"
-                            >
-                              <DuoImages
-                                adcImage={row.oppAdcImage}
-                                supImage={row.oppSupImage}
-                                adcName={row.oppAdcName}
-                                supName={row.oppSupName}
-                              />
-                              <span>
-                                {row.oppAdcName}{" "}
-                                <span className="text-muted-foreground">
-                                  +
-                                </span>{" "}
-                                {row.oppSupName}
-                              </span>
-                            </Link>
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            {formatPercent(row.pickRate)}
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            {formatPercent(row.winRate)}
-                          </TableCell>
-                          <TableCell className="text-right tabular-nums">
-                            {row.games}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="counters" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>카운터</CardTitle>
-                <CardDescription>
-                  이 듀오에게 불리한 상대 조합입니다.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Table>
+        <section className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>카운터</CardTitle>
+              <CardDescription>
+                이 듀오에게 불리한 상위 {counters.counters.length}개 상대
+                조합입니다.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-2 sm:px-6">
+              <div className="-mx-2 overflow-x-auto sm:mx-0">
+                <Table className="min-w-[560px]">
                   <TableHeader>
                     <TableRow>
                       <TableHead>상대 듀오</TableHead>
@@ -250,9 +224,7 @@ export default async function DuoDetailPage({
                       </TableRow>
                     ) : (
                       counters.counters.map((row) => (
-                        <TableRow
-                          key={`${row.oppAdcId}-${row.oppSupId}`}
-                        >
+                        <TableRow key={`${row.oppAdcId}-${row.oppSupId}`}>
                           <TableCell>
                             <Link
                               href={detailHref(
@@ -262,7 +234,7 @@ export default async function DuoDetailPage({
                                 patchParam,
                                 matchupSort,
                               )}
-                              className="hover:bg-muted/50 -m-2 flex items-center gap-3 rounded-md p-2 transition-colors"
+                              className="hover:bg-muted/50 -m-2 flex items-center gap-2 rounded-md p-2 transition-colors sm:gap-3"
                             >
                               <DuoImages
                                 adcImage={row.oppAdcImage}
@@ -270,11 +242,9 @@ export default async function DuoDetailPage({
                                 adcName={row.oppAdcName}
                                 supName={row.oppSupName}
                               />
-                              <span>
+                              <span className="text-xs sm:text-sm">
                                 {row.oppAdcName}{" "}
-                                <span className="text-muted-foreground">
-                                  +
-                                </span>{" "}
+                                <span className="text-muted-foreground">+</span>{" "}
                                 {row.oppSupName}
                               </span>
                             </Link>
@@ -293,10 +263,107 @@ export default async function DuoDetailPage({
                     )}
                   </TableBody>
                 </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight sm:text-xl">
+                매치업
+              </h2>
+              <p className="text-muted-foreground text-xs sm:text-sm">
+                이 듀오가 마주친 상대 바텀 조합별 승률·픽률입니다.
+              </p>
+            </div>
+            <Suspense
+              fallback={
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-20" />
+                  <div className="flex flex-wrap gap-1.5">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="h-8 w-14 rounded-full" />
+                    ))}
+                  </div>
+                </div>
+              }
+            >
+              <MatchupSortFilter
+                key={matchupSort}
+                sort={matchupSort}
+                duoPath={duoPath}
+              />
+            </Suspense>
+          </div>
+          <Card>
+            <CardContent className="px-2 pt-6 sm:px-6">
+              <div className="-mx-2 overflow-x-auto sm:mx-0">
+                <Table className="min-w-[560px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>상대 듀오</TableHead>
+                      <TableHead className="text-right">픽률</TableHead>
+                      <TableHead className="text-right">승률</TableHead>
+                      <TableHead className="text-right">게임</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {matchups.items.length === 0 ? (
+                      <TableRow>
+                        <TableCell
+                          colSpan={4}
+                          className="text-muted-foreground py-10 text-center"
+                        >
+                          매치업 데이터가 없습니다.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      matchups.items.map((row) => (
+                        <TableRow key={`${row.oppAdcId}-${row.oppSupId}`}>
+                          <TableCell>
+                            <Link
+                              href={detailHref(
+                                row.oppAdcId,
+                                row.oppSupId,
+                                tier,
+                                patchParam,
+                                matchupSort,
+                              )}
+                              className="hover:bg-muted/50 -m-2 flex items-center gap-2 rounded-md p-2 transition-colors sm:gap-3"
+                            >
+                              <DuoImages
+                                adcImage={row.oppAdcImage}
+                                supImage={row.oppSupImage}
+                                adcName={row.oppAdcName}
+                                supName={row.oppSupName}
+                              />
+                              <span className="text-xs sm:text-sm">
+                                {row.oppAdcName}{" "}
+                                <span className="text-muted-foreground">+</span>{" "}
+                                {row.oppSupName}
+                              </span>
+                            </Link>
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {formatPercent(row.pickRate)}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {formatPercent(row.winRate)}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {row.games}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
       </div>
     </div>
   )

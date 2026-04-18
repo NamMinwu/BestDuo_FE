@@ -3,17 +3,17 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useTransition } from "react"
 
-import { Label } from "@workspace/ui/components/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@workspace/ui/components/select"
+import { FilterChip, FilterChipGroup } from "@/components/filter-chip"
 import { MATCHUP_SORT, type MatchupSort } from "@/lib/bestduo-api"
 
 const LABELS: Record<MatchupSort, string> = {
+  PICKRATE_DESC: "픽률↓",
+  PICKRATE_ASC: "픽률↑",
+  WINRATE_DESC: "승률↓",
+  WINRATE_ASC: "승률↑",
+}
+
+const TITLES: Record<MatchupSort, string> = {
   PICKRATE_DESC: "픽률 높은 순",
   PICKRATE_ASC: "픽률 낮은 순",
   WINRATE_DESC: "승률 높은 순",
@@ -44,24 +44,18 @@ export function MatchupSortFilter({
   )
 
   return (
-    <div className="grid gap-2">
-      <Label htmlFor="matchupSort">매치업 정렬</Label>
-      <Select
-        value={sort}
-        onValueChange={pushSort}
-        disabled={pending}
-      >
-        <SelectTrigger id="matchupSort" className="w-[200px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {MATCHUP_SORT.map((s) => (
-            <SelectItem key={s} value={s}>
-              {LABELS[s]}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <FilterChipGroup label="매치업 정렬">
+      {MATCHUP_SORT.map((s) => (
+        <FilterChip
+          key={s}
+          active={sort === s}
+          disabled={pending}
+          title={TITLES[s]}
+          onClick={() => pushSort(s)}
+        >
+          {LABELS[s]}
+        </FilterChip>
+      ))}
+    </FilterChipGroup>
   )
 }

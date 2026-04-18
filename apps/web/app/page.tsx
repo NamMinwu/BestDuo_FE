@@ -18,7 +18,11 @@ import {
   TableRow,
 } from "@workspace/ui/components/table"
 
-import { DuoImages } from "@/components/duo-images"
+import { ChampionPortrait } from "@/components/champion-portrait"
+import { ChampionSidebar } from "@/components/champion-sidebar"
+import { DuoTierBadge } from "@/components/duo-tier-badge"
+import { RankDelta } from "@/components/rank-delta"
+import { SortableHead } from "@/components/sortable-head"
 import { StatsFilters } from "@/components/stats-filters"
 import {
   getBottomDuoStats,
@@ -26,6 +30,7 @@ import {
   parseTier,
   type Tier,
 } from "@/lib/bestduo-api"
+import { getAllChampions } from "@/lib/ddragon"
 import { formatPercent } from "@/lib/format"
 
 function detailHref(
@@ -56,123 +61,198 @@ export default async function Page({
   const patchVersion =
     typeof sp.patchVersion === "string" ? sp.patchVersion.trim() : ""
   const patchParam = patchVersion || undefined
+  const adcId = typeof sp.adcId === "string" ? sp.adcId : undefined
+  const supId = typeof sp.supId === "string" ? sp.supId : undefined
 
-  const data = await getBottomDuoStats({
-    tier,
-    sort,
-    patchVersion: patchParam,
-  })
+  const [champions, data] = await Promise.all([
+    getAllChampions(),
+    getBottomDuoStats({
+      tier,
+      sort,
+      patchVersion: patchParam,
+      adcChampionId: adcId,
+      supChampionId: supId,
+    }),
+  ])
 
   return (
-    <div className="min-h-svh bg-background px-4 py-8 md:px-8">
-      <div className="mx-auto max-w-6xl space-y-8">
-        <header className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-            Best Duo
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            바텀 듀오 픽률·승률 · 티어 {tier.replace(/_/g, " ")} · 패치{" "}
-            {data.patchVersion}
-            {data.totalGames != null ? (
-              <span> · 샘플 {data.totalGames.toLocaleString()}게임</span>
-            ) : null}
-          </p>
-        </header>
+    <div className="min-h-svh bg-background px-3 py-5 sm:px-4 sm:py-8 md:px-8">
+      <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[220px_1fr] lg:gap-6">
+        <ChampionSidebar
+          adcId={adcId}
+          supId={supId}
+          champions={champions}
+        />
 
-        <Suspense
-          fallback={
-            <div className="flex flex-wrap gap-4">
-              <Skeleton className="h-10 w-[200px]" />
-              <Skeleton className="h-10 w-[200px]" />
-              <Skeleton className="h-10 w-[200px]" />
-            </div>
-          }
-        >
-          <StatsFilters
-            key={`${tier}-${sort}-${patchParam ?? ""}`}
-            tier={tier}
-            sort={sort}
-            patchVersion={patchParam ?? ""}
-          />
-        </Suspense>
+        <div className="space-y-5 sm:space-y-8">
+          <header className="space-y-1">
+            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">
+              Best Duo
+            </h1>
+            <p className="text-muted-foreground text-xs sm:text-sm">
+              바텀 듀오 픽률·승률 · 티어 {tier.replace(/_/g, " ")} · 패치{" "}
+              {data.patchVersion}
+              {data.totalGames != null ? (
+                <span> · 샘플 {data.totalGames.toLocaleString()}게임</span>
+              ) : null}
+            </p>
+          </header>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>듀오 랭킹</CardTitle>
-            <CardDescription>
-              ADC + 서포트 조합별 통계입니다. 행을 눌러 상세 매치업을 확인하세요.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[52px]">순위</TableHead>
-                  <TableHead>듀오</TableHead>
-                  <TableHead className="text-right">픽률</TableHead>
-                  <TableHead className="text-right">승률</TableHead>
-                  <TableHead className="text-right">게임 수</TableHead>
-                  <TableHead className="text-right">듀오 티어</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.items.length === 0 ? (
+          <Suspense
+            fallback={
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-10" />
+                  <div className="flex flex-wrap gap-1.5">
+                    {Array.from({ length: 11 }).map((_, i) => (
+                      <Skeleton key={i} className="h-8 w-16 rounded-full" />
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-end gap-2">
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-16" />
+                    <Skeleton className="h-8 w-[120px] rounded-full" />
+                  </div>
+                  <Skeleton className="h-8 w-14 rounded-full" />
+                </div>
+              </div>
+            }
+          >
+            <StatsFilters
+              key={`${tier}-${patchParam ?? ""}`}
+              tier={tier}
+              patchVersion={patchParam ?? ""}
+            />
+          </Suspense>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>듀오 랭킹</CardTitle>
+              <CardDescription>
+                ADC + 서포트 조합별 통계입니다. 컬럼 제목을 눌러 정렬하세요.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-2 sm:px-6">
+              <div className="-mx-2 overflow-x-auto sm:mx-0">
+              <Table className="min-w-[640px]">
+                <TableHeader>
                   <TableRow>
-                    <TableCell
-                      colSpan={6}
-                      className="text-muted-foreground py-10 text-center"
+                    <SortableHead
+                      activeSort={sort}
+                      ascSort="RANKING_ASC"
+                      descSort="RANKING_DESC"
+                      className="w-[72px]"
                     >
-                      조건에 맞는 데이터가 없습니다.
-                    </TableCell>
+                      순위
+                    </SortableHead>
+                    <TableHead>Bottom</TableHead>
+                    <TableHead>Support</TableHead>
+                    <SortableHead
+                      activeSort={sort}
+                      ascSort="DUO_TIER_ASC"
+                      descSort="DUO_TIER_DESC"
+                      className="w-[72px] text-center"
+                      align="center"
+                    >
+                      티어
+                    </SortableHead>
+                    <SortableHead
+                      activeSort={sort}
+                      ascSort="WINRATE_ASC"
+                      descSort="WINRATE_DESC"
+                      className="text-right"
+                      align="right"
+                    >
+                      승률
+                    </SortableHead>
+                    <SortableHead
+                      activeSort={sort}
+                      ascSort="PICKRATE_ASC"
+                      descSort="PICKRATE_DESC"
+                      className="text-right"
+                      align="right"
+                    >
+                      픽률
+                    </SortableHead>
+                    <TableHead className="text-right">게임 수</TableHead>
                   </TableRow>
-                ) : (
-                  data.items.map((row) => (
-                    <TableRow key={`${row.adcId}-${row.supId}`}>
-                      <TableCell className="font-mono text-muted-foreground">
-                        {row.ranking}
-                      </TableCell>
-                      <TableCell>
-                        <Link
-                          href={detailHref(
-                            row.adcId,
-                            row.supId,
-                            tier,
-                            patchParam,
-                          )}
-                          className="hover:bg-muted/50 -m-2 flex items-center gap-3 rounded-md p-2 transition-colors"
-                        >
-                          <DuoImages
-                            adcImage={row.adcImage}
-                            supImage={row.supImage}
-                            adcName={row.adcName}
-                            supName={row.supName}
-                          />
-                          <span className="font-medium">
-                            {row.adcName}{" "}
-                            <span className="text-muted-foreground">+</span>{" "}
-                            {row.supName}
-                          </span>
-                        </Link>
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {formatPercent(row.pickRate)}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {formatPercent(row.winRate)}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {row.games.toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {row.duoTier}
+                </TableHeader>
+                <TableBody>
+                  {data.items.length === 0 ? (
+                    <TableRow>
+                      <TableCell
+                        colSpan={7}
+                        className="text-muted-foreground py-10 text-center"
+                      >
+                        조건에 맞는 데이터가 없습니다.
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+                  ) : (
+                    data.items.map((row) => {
+                      const href = detailHref(
+                        row.adcId,
+                        row.supId,
+                        tier,
+                        patchParam,
+                      )
+                      return (
+                        <TableRow
+                          key={`${row.adcId}-${row.supId}`}
+                          className="hover:bg-muted/30 transition-colors"
+                        >
+                          <TableCell>
+                            <div className="flex items-center gap-2 font-mono">
+                              <span className="text-muted-foreground">
+                                {row.ranking}
+                              </span>
+                              <RankDelta delta={row.rankDelta} />
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Link
+                              href={href}
+                              className="-m-2 block rounded-md p-2"
+                            >
+                              <ChampionPortrait
+                                image={row.adcImage}
+                                name={row.adcName}
+                              />
+                            </Link>
+                          </TableCell>
+                          <TableCell>
+                            <Link
+                              href={href}
+                              className="-m-2 block rounded-md p-2"
+                            >
+                              <ChampionPortrait
+                                image={row.supImage}
+                                name={row.supName}
+                              />
+                            </Link>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <DuoTierBadge tier={row.duoTier} />
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums font-semibold">
+                            {formatPercent(row.winRate)}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums text-muted-foreground">
+                            {formatPercent(row.pickRate)}
+                          </TableCell>
+                          <TableCell className="text-right tabular-nums text-muted-foreground">
+                            {row.games.toLocaleString()}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })
+                  )}
+                </TableBody>
+              </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

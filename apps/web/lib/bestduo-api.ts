@@ -13,12 +13,6 @@ export const TIERS = [
   "MASTER",
   "DIAMOND",
   "EMERALD",
-  "PLATINUM",
-  "GOLD",
-  "SILVER",
-  "BRONZE",
-  "IRON",
-  "ALL_TIERS",
 ] as const
 
 export type Tier = (typeof TIERS)[number]
@@ -172,6 +166,8 @@ export async function getBottomDuoMatchups(params: {
   )
 }
 
+export const COUNTER_DEFAULT_SIZE = 5
+
 export async function getBottomDuoCounters(params: {
   tier: Tier
   adcChampionId: string
@@ -179,13 +175,13 @@ export async function getBottomDuoCounters(params: {
   patchVersion?: string
   size?: number
 }): Promise<BottomDuoCounterResponse> {
+  const size = params.size ?? COUNTER_DEFAULT_SIZE
   const q = buildSearchParams({
     tier: params.tier,
     patchVersion: params.patchVersion,
     adcChampionId: params.adcChampionId,
     supChampionId: params.supChampionId,
-    size:
-      params.size !== undefined ? String(params.size) : undefined,
+    size: String(size),
   })
   return fetchJson<BottomDuoCounterResponse>(
     `/bottom-duo/counters${q}`,
