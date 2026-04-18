@@ -34,3 +34,10 @@ npm-debug.log*
 # Misc
 .DS_Store
 *.pem
+
+# Firecrawl
+.firecrawl/
+
+# IDE
+.idea/
+.vscode/
