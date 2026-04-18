@@ -128,7 +128,7 @@ export default async function DuoDetailPage({
   )
 
   return (
-    <div className="min-h-svh bg-background px-3 py-5 sm:px-4 sm:py-8 md:px-8">
+    <div className="px-3 py-5 sm:px-4 sm:py-8 md:px-8">
       <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link

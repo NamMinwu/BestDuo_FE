@@ -3,8 +3,6 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useTransition } from "react"
 
-import { Button } from "@workspace/ui/components/button"
-import { Input } from "@workspace/ui/components/input"
 import { FilterChip, FilterChipGroup } from "@/components/filter-chip"
 import { TIERS, type Tier } from "@/lib/bestduo-api"
 
@@ -16,12 +14,16 @@ const TIER_LABELS: Record<Tier, string> = {
   EMERALD: "에메랄드",
 }
 
+const PATCH_LABELS = ["최신", "이전"] as const
+
 export function StatsFilters({
   tier,
   patchVersion,
+  patches,
 }: {
   tier: Tier
   patchVersion: string
+  patches: string[]
 }) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -42,6 +44,8 @@ export function StatsFilters({
     [router, searchParams],
   )
 
+  const selectedPatch = patchVersion || patches[0] || ""
+
   return (
     <div className="space-y-4">
       <FilterChipGroup label="티어">
@@ -57,38 +61,20 @@ export function StatsFilters({
         ))}
       </FilterChipGroup>
 
-      <form
-        className="flex items-end gap-2"
-        onSubmit={(e) => {
-          e.preventDefault()
-          const fd = new FormData(e.currentTarget)
-          const patch = String(fd.get("patchVersion") ?? "").trim()
-          pushQuery({ patchVersion: patch || undefined })
-        }}
-      >
-        <div className="space-y-2">
-          <div className="text-muted-foreground text-[11px] font-semibold uppercase tracking-wider">
-            패치 (선택)
-          </div>
-          <Input
-            id="patchVersion"
-            name="patchVersion"
-            placeholder="예: 16.4"
-            defaultValue={patchVersion}
-            className="h-8 w-[120px] rounded-full px-3 text-xs"
+      <FilterChipGroup label="패치">
+        {patches.map((p, i) => (
+          <FilterChip
+            key={p}
+            active={selectedPatch === p}
             disabled={pending}
-          />
-        </div>
-        <Button
-          type="submit"
-          variant="secondary"
-          size="sm"
-          disabled={pending}
-          className="h-8 rounded-full px-4 text-xs"
-        >
-          적용
-        </Button>
-      </form>
+            onClick={() =>
+              pushQuery({ patchVersion: i === 0 ? undefined : p })
+            }
+          >
+            {PATCH_LABELS[i] ?? p} ({p})
+          </FilterChip>
+        ))}
+      </FilterChipGroup>
     </div>
   )
 }

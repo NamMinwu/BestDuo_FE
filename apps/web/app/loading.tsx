@@ -3,7 +3,7 @@ import { Skeleton } from "@workspace/ui/components/skeleton"
 
 export default function Loading() {
   return (
-    <div className="min-h-svh bg-background px-4 py-8 md:px-8">
+    <div className="px-4 py-8 md:px-8">
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="space-y-2">
           <Skeleton className="h-9 w-48" />

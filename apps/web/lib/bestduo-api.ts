@@ -199,7 +199,7 @@ export function parseStatsSort(value: string | undefined): StatsSort {
   if (value && (STATS_SORT as readonly string[]).includes(value)) {
     return value as StatsSort
   }
-  return "PICKRATE_DESC"
+  return "RANKING_ASC"
 }
 
 export function parseMatchupSort(value: string | undefined): MatchupSort {
@@ -207,4 +207,18 @@ export function parseMatchupSort(value: string | undefined): MatchupSort {
     return value as MatchupSort
   }
   return "PICKRATE_DESC"
+}
+
+export function getPreviousPatch(current: string): string {
+  const parts = current.split(".")
+  const major = Number(parts[0])
+  const minor = Number(parts[1])
+  if (!Number.isFinite(major) || !Number.isFinite(minor)) return current
+  if (minor <= 1) return `${major - 1}.24`
+  return `${major}.${minor - 1}`
+}
+
+export function getRecentPatches(current: string): string[] {
+  const previous = getPreviousPatch(current)
+  return previous === current ? [current] : [current, previous]
 }

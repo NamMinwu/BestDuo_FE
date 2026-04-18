@@ -26,6 +26,7 @@ import { SortableHead } from "@/components/sortable-head"
 import { StatsFilters } from "@/components/stats-filters"
 import {
   getBottomDuoStats,
+  getRecentPatches,
   parseStatsSort,
   parseTier,
   type Tier,
@@ -64,7 +65,7 @@ export default async function Page({
   const adcId = typeof sp.adcId === "string" ? sp.adcId : undefined
   const supId = typeof sp.supId === "string" ? sp.supId : undefined
 
-  const [champions, data] = await Promise.all([
+  const [champions, data, baseData] = await Promise.all([
     getAllChampions(),
     getBottomDuoStats({
       tier,
@@ -73,10 +74,14 @@ export default async function Page({
       adcChampionId: adcId,
       supChampionId: supId,
     }),
+    patchParam ? getBottomDuoStats({ tier }) : Promise.resolve(null),
   ])
 
+  const currentPatch = baseData?.patchVersion ?? data.patchVersion
+  const patches = getRecentPatches(currentPatch)
+
   return (
-    <div className="min-h-svh bg-background px-3 py-5 sm:px-4 sm:py-8 md:px-8">
+    <div className="px-3 py-5 sm:px-4 sm:py-8 md:px-8">
       <div className="mx-auto grid max-w-7xl gap-4 lg:grid-cols-[220px_1fr] lg:gap-6">
         <ChampionSidebar
           adcId={adcId}
@@ -123,6 +128,7 @@ export default async function Page({
               key={`${tier}-${patchParam ?? ""}`}
               tier={tier}
               patchVersion={patchParam ?? ""}
+              patches={patches}
             />
           </Suspense>
 
