@@ -100,25 +100,28 @@ export default async function DuoDetailPage({
 
   const duoPath = `/duo/${encodeURIComponent(adcId)}/${encodeURIComponent(supId)}`
 
+  const resolvedPatch =
+    patchParam ?? (await getBottomDuoStats({ tier })).patchVersion
+
   const [matchups, counters, stats] = await Promise.all([
     getBottomDuoMatchups({
       tier,
       adcChampionId: adcId,
       supChampionId: supId,
-      patchVersion: patchParam,
+      patchVersion: resolvedPatch,
       sort: matchupSort,
     }),
     getBottomDuoCounters({
       tier,
       adcChampionId: adcId,
       supChampionId: supId,
-      patchVersion: patchParam,
+      patchVersion: resolvedPatch,
     }),
     getBottomDuoStats({
       tier,
       adcChampionId: adcId,
       supChampionId: supId,
-      patchVersion: patchParam,
+      patchVersion: resolvedPatch,
     }),
   ])
 
@@ -132,7 +135,7 @@ export default async function DuoDetailPage({
       <div className="mx-auto max-w-6xl space-y-5 sm:space-y-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <Link
-            href={mainHref(tier, patchParam)}
+            href={mainHref(tier, resolvedPatch)}
             className="text-muted-foreground hover:text-foreground text-sm underline-offset-4 hover:underline"
           >
             ← 랭킹으로
@@ -231,7 +234,7 @@ export default async function DuoDetailPage({
                                 row.oppAdcId,
                                 row.oppSupId,
                                 tier,
-                                patchParam,
+                                resolvedPatch,
                                 matchupSort,
                               )}
                               className="hover:bg-muted/50 -m-2 flex items-center gap-2 rounded-md p-2 transition-colors sm:gap-3"
@@ -328,7 +331,7 @@ export default async function DuoDetailPage({
                                 row.oppAdcId,
                                 row.oppSupId,
                                 tier,
-                                patchParam,
+                                resolvedPatch,
                                 matchupSort,
                               )}
                               className="hover:bg-muted/50 -m-2 flex items-center gap-2 rounded-md p-2 transition-colors sm:gap-3"

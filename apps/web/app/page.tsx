@@ -200,7 +200,7 @@ export default async function Page({
                         row.adcId,
                         row.supId,
                         tier,
-                        patchParam,
+                        patchParam ?? data.patchVersion,
                       )
                       return (
                         <TableRow
