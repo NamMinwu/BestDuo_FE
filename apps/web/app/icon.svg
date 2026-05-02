@@ -1,0 +1,62 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iconBdGradient" x1="0" y1="0" x2="256" y2="256" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F7BFF"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+    <linearGradient id="iconBarGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#22D3EE"/>
+      <stop offset="100%" stop-color="#4F7BFF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dark squircle background -->
+  <rect width="256" height="256" rx="56" fill="#0B1224"/>
+
+  <!-- Letter B (blue) -->
+  <path d="
+    M 36 56
+    H 92
+    C 116 56 128 70 128 88
+    C 128 102 121 113 110 119
+    C 124 124 134 137 134 154
+    C 134 175 120 200 92 200
+    H 36
+    Z
+    M 64 82
+    V 109
+    H 88
+    C 96 109 100 102 100 96
+    C 100 89 96 82 88 82
+    Z
+    M 64 130
+    V 174
+    H 92
+    C 104 174 108 165 108 157
+    C 108 149 104 130 92 130
+    Z
+  " fill="#4F7BFF" fill-rule="evenodd" transform="translate(-4 0)"/>
+
+  <!-- Letter D (gradient) -->
+  <path d="
+    M 144 56
+    H 184
+    C 215 56 228 92 228 128
+    C 228 164 215 200 184 200
+    H 144
+    Z
+    M 172 82
+    V 174
+    H 182
+    C 199 174 204 152 204 128
+    C 204 104 199 82 182 82
+    Z
+  " fill="url(#iconBdGradient)" fill-rule="evenodd"/>
+
+  <!-- Bar chart -->
+  <g>
+    <rect x="178" y="138" width="7" height="26" rx="1.5" fill="url(#iconBarGradient)"/>
+    <rect x="189" y="124" width="7" height="40" rx="1.5" fill="url(#iconBarGradient)"/>
+    <rect x="200" y="108" width="7" height="56" rx="1.5" fill="url(#iconBarGradient)"/>
+  </g>
+</svg>

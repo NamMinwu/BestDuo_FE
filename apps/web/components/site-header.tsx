@@ -1,30 +1,31 @@
 import Link from "next/link"
 
+import { BrandWordmark } from "@/components/brand-mark"
+
 export function SiteHeader() {
   return (
-    <header className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40 border-b border-border backdrop-blur">
-      <div className="mx-auto flex h-12 max-w-7xl items-center gap-4 px-3 sm:h-14 sm:px-4 md:px-8">
+    <header className="bg-background/55 supports-[backdrop-filter]:bg-background/35 sticky top-0 z-40 border-b border-border/60 backdrop-blur-xl">
+      <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-3 sm:h-16 sm:px-4 md:px-8">
         <Link
           href="/"
-          className="flex items-center gap-2 text-sm font-semibold tracking-tight sm:text-base"
+          aria-label="Best Duo 홈"
+          className="group inline-flex items-center gap-2 transition-opacity hover:opacity-90"
         >
-          <span
-            aria-hidden
-            className="bg-primary/15 text-primary flex h-6 w-6 items-center justify-center rounded-md text-[11px] font-bold sm:h-7 sm:w-7 sm:text-xs"
-          >
-            BD
-          </span>
-          <span>Best Duo</span>
+          <BrandWordmark />
         </Link>
-        <nav className="text-muted-foreground ml-auto flex items-center gap-3 text-xs sm:gap-4 sm:text-sm">
+        <nav className="ml-auto flex items-center gap-1 text-xs sm:gap-2 sm:text-sm">
           <Link
             href="/"
-            className="hover:text-foreground transition-colors"
+            className="text-muted-foreground hover:text-foreground rounded-full px-3 py-1.5 transition-colors hover:bg-white/5"
           >
             랭킹
           </Link>
         </nav>
       </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-[#4F7BFF]/40 to-transparent"
+      />
     </header>
   )
 }
