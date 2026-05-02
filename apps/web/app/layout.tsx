@@ -14,10 +14,60 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 })
 
+const SITE_URL = "https://bestduo.cloud"
+const SITE_NAME = "BestDuo"
+const SITE_ALT_NAMES = ["베스트듀오", "베스트 듀오"]
+const SITE_TITLE = "BestDuo (베스트듀오) · 최고의 듀오 통계"
+const SITE_DESCRIPTION =
+  "베스트듀오(BestDuo)는 두 플레이어의 시너지와 데이터를 연결하여 최적의 듀오 조합을 찾아주는 서비스입니다."
+
 export const metadata: Metadata = {
-  title: "BestDuo · 최고의 듀오 통계",
-  description:
-    "두 플레이어의 시너지와 데이터를 연결하여 최적의 듀오 조합을 찾아주는 서비스",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: SITE_TITLE,
+    template: "%s · BestDuo",
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "BestDuo",
+    "베스트듀오",
+    "베스트 듀오",
+    "bestduo",
+    "롤 듀오",
+    "롤 듀오 통계",
+    "리그 오브 레전드 듀오",
+    "바텀 듀오",
+    "원딜 서폿 시너지",
+    "ADC Support synergy",
+    "League of Legends duo stats",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    locale: "ko_KR",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 }
 
 export const viewport: Viewport = {
@@ -52,6 +102,34 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": `${SITE_URL}/#organization`,
+                  name: SITE_NAME,
+                  alternateName: SITE_ALT_NAMES,
+                  url: SITE_URL,
+                  logo: `${SITE_URL}/logo.png`,
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": `${SITE_URL}/#website`,
+                  name: SITE_NAME,
+                  alternateName: SITE_ALT_NAMES,
+                  url: SITE_URL,
+                  description: SITE_DESCRIPTION,
+                  inLanguage: "ko-KR",
+                  publisher: { "@id": `${SITE_URL}/#organization` },
+                },
+              ],
+            }),
+          }}
+        />
         <ThemeProvider>
           <div className="relative flex min-h-svh flex-col bg-background">
             <SiteHeader />

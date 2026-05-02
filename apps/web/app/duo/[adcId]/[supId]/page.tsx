@@ -1,6 +1,11 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: true },
+}
 
 import {
   Card,
