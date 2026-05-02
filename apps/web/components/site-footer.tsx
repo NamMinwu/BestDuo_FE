@@ -1,6 +1,5 @@
 import { BrandMark } from "@/components/brand-mark"
-
-const CONTACT_EMAIL = "minwu06255@gmail.com"
+import { ContactDialog } from "@/components/contact-dialog"
 
 export function SiteFooter() {
   const year = new Date().getFullYear()
@@ -17,12 +16,16 @@ export function SiteFooter() {
               · &copy; {year} All rights reserved.
             </span>
           </div>
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="hover:text-foreground transition-colors"
-          >
-            문의하기
-          </a>
+          <ContactDialog
+            trigger={
+              <button
+                type="button"
+                className="hover:text-foreground transition-colors"
+              >
+                문의하기
+              </button>
+            }
+          />
         </div>
         <p className="leading-relaxed text-muted-foreground/80">
           Best Duo isn&apos;t endorsed by Riot Games and doesn&apos;t reflect the
