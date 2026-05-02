@@ -209,16 +209,12 @@ export function parseMatchupSort(value: string | undefined): MatchupSort {
   return "PICKRATE_DESC"
 }
 
-export function getPreviousPatch(current: string): string {
-  const parts = current.split(".")
-  const major = Number(parts[0])
-  const minor = Number(parts[1])
-  if (!Number.isFinite(major) || !Number.isFinite(minor)) return current
-  if (minor <= 1) return `${major - 1}.24`
-  return `${major}.${minor - 1}`
+interface PatchVersionResponse {
+  patch: string
+  releasedAt: string
 }
 
-export function getRecentPatches(current: string): string[] {
-  const previous = getPreviousPatch(current)
-  return previous === current ? [current] : [current, previous]
+export async function getRecentPatches(): Promise<string[]> {
+  const items = await fetchJson<PatchVersionResponse[]>("/patch/recent")
+  return items.map((item) => item.patch)
 }

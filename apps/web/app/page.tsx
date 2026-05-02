@@ -65,7 +65,7 @@ export default async function Page({
   const adcId = typeof sp.adcId === "string" ? sp.adcId : undefined
   const supId = typeof sp.supId === "string" ? sp.supId : undefined
 
-  const [champions, data, baseData] = await Promise.all([
+  const [champions, data, patches] = await Promise.all([
     getAllChampions(),
     getBottomDuoStats({
       tier,
@@ -74,11 +74,8 @@ export default async function Page({
       adcChampionId: adcId,
       supChampionId: supId,
     }),
-    patchParam ? getBottomDuoStats({ tier }) : Promise.resolve(null),
+    getRecentPatches(),
   ])
-
-  const currentPatch = baseData?.patchVersion ?? data.patchVersion
-  const patches = getRecentPatches(currentPatch)
 
   return (
     <div className="px-3 py-5 sm:px-4 sm:py-8 md:px-8">
