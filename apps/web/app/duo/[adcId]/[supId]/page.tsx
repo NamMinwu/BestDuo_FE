@@ -59,15 +59,35 @@ function StatCard({
   label,
   value,
   sub,
+  highlight = false,
 }: {
   label: string
   value: string
   sub?: string
+  highlight?: boolean
 }) {
   return (
-    <div className="bg-muted/30 rounded-lg border border-border px-3 py-2.5 sm:px-4 sm:py-3">
-      <div className="text-muted-foreground text-[11px] sm:text-xs">{label}</div>
-      <div className="mt-1 text-lg font-semibold tabular-nums sm:text-xl">
+    <div
+      className={
+        "brand-card relative overflow-hidden rounded-xl px-3 py-2.5 sm:px-4 sm:py-3.5 " +
+        (highlight ? "ring-1 ring-[#4F7BFF]/40" : "")
+      }
+    >
+      {highlight ? (
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-[#4F7BFF]/25 blur-2xl"
+        />
+      ) : null}
+      <div className="text-muted-foreground text-[11px] uppercase tracking-wider sm:text-xs">
+        {label}
+      </div>
+      <div
+        className={
+          "mt-1 text-xl font-bold tabular-nums sm:text-2xl " +
+          (highlight ? "brand-gradient-text" : "text-foreground")
+        }
+      >
         {value}
       </div>
       {sub ? (
@@ -153,10 +173,10 @@ export default async function DuoDetailPage({
             />
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                <h1 className="text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">
-                  {myDuo.adcName}{" "}
-                  <span className="text-muted-foreground font-normal">+</span>{" "}
-                  {myDuo.supName}
+                <h1 className="text-xl font-bold tracking-tight sm:text-2xl md:text-3xl">
+                  <span className="text-foreground">{myDuo.adcName}</span>{" "}
+                  <span className="brand-gradient-text font-normal">+</span>{" "}
+                  <span className="text-foreground">{myDuo.supName}</span>
                 </h1>
                 {myStat ? (
                   <DuoTierBadge tier={myStat.duoTier} size="lg" />
@@ -175,6 +195,7 @@ export default async function DuoDetailPage({
                 label="승률"
                 value={formatPercent(myStat.winRate)}
                 sub={`랭킹 #${myStat.ranking}`}
+                highlight
               />
               <StatCard label="픽률" value={formatPercent(myStat.pickRate)} />
               <StatCard
@@ -196,9 +217,9 @@ export default async function DuoDetailPage({
         </header>
 
         <section className="space-y-4">
-          <Card>
+          <Card className="brand-card overflow-hidden">
             <CardHeader>
-              <CardTitle>카운터</CardTitle>
+              <CardTitle className="text-base sm:text-lg">카운터</CardTitle>
               <CardDescription>
                 이 듀오에게 불리한 상위 {counters.counters.length}개 상대
                 조합입니다.
@@ -300,7 +321,7 @@ export default async function DuoDetailPage({
               />
             </Suspense>
           </div>
-          <Card>
+          <Card className="brand-card overflow-hidden">
             <CardContent className="px-2 pt-6 sm:px-6">
               <div className="-mx-2 overflow-x-auto sm:mx-0">
                 <Table className="min-w-[560px]">

@@ -1,12 +1,22 @@
+import { BrandMark } from "@/components/brand-mark"
+
 const CONTACT_EMAIL = "minwu06255@gmail.com"
 
 export function SiteFooter() {
   const year = new Date().getFullYear()
   return (
-    <footer className="border-t border-border bg-background/60 mt-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 px-3 py-4 text-[11px] text-muted-foreground sm:px-4 sm:py-5 sm:text-xs md:px-8">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {year} Best Duo. All rights reserved.</p>
+    <footer className="border-t border-border/60 bg-background/40 mt-12 backdrop-blur">
+      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-3 py-6 text-[11px] text-muted-foreground sm:px-4 sm:py-8 sm:text-xs md:px-8">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <BrandMark className="h-6 w-auto opacity-80" />
+            <p className="text-foreground/80 font-semibold tracking-tight">
+              Best<span className="brand-gradient-text">Duo</span>
+            </p>
+            <span className="text-muted-foreground/70">
+              · &copy; {year} All rights reserved.
+            </span>
+          </div>
           <a
             href={`mailto:${CONTACT_EMAIL}`}
             className="hover:text-foreground transition-colors"
@@ -14,7 +24,7 @@ export function SiteFooter() {
             문의하기
           </a>
         </div>
-        <p className="leading-relaxed">
+        <p className="leading-relaxed text-muted-foreground/80">
           Best Duo isn&apos;t endorsed by Riot Games and doesn&apos;t reflect the
           views or opinions of Riot Games or anyone officially involved in
           producing or managing League of Legends.

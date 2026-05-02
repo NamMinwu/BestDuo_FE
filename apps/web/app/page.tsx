@@ -90,13 +90,20 @@ export default async function Page({
         />
 
         <div className="space-y-5 sm:space-y-8">
-          <header className="space-y-1">
-            <h1 className="text-xl font-semibold tracking-tight sm:text-2xl md:text-3xl">
-              Best Duo
+          <header className="space-y-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#4F7BFF]/30 bg-[#4F7BFF]/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#93B0FF]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#4F7BFF]" />
+              듀오 통계
+            </span>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
+              <span className="text-foreground">최적의 </span>
+              <span className="brand-gradient-text">듀오</span>
+              <span className="text-foreground">를 찾아보세요</span>
             </h1>
             <p className="text-muted-foreground text-xs sm:text-sm">
-              바텀 듀오 픽률·승률 · 티어 {tier.replace(/_/g, " ")} · 패치{" "}
-              {data.patchVersion}
+              티어 <span className="text-foreground font-medium">{tier.replace(/_/g, " ")}</span>
+              <span> · 패치 </span>
+              <span className="text-foreground font-medium">{data.patchVersion}</span>
               {data.totalGames != null ? (
                 <span> · 샘플 {data.totalGames.toLocaleString()}게임</span>
               ) : null}
@@ -132,9 +139,9 @@ export default async function Page({
             />
           </Suspense>
 
-          <Card>
+          <Card className="brand-card overflow-hidden">
             <CardHeader>
-              <CardTitle>듀오 랭킹</CardTitle>
+              <CardTitle className="text-base sm:text-lg">듀오 랭킹</CardTitle>
               <CardDescription>
                 ADC + 서포트 조합별 통계입니다. 컬럼 제목을 눌러 정렬하세요.
               </CardDescription>
@@ -205,7 +212,7 @@ export default async function Page({
                       return (
                         <TableRow
                           key={`${row.adcId}-${row.supId}`}
-                          className="hover:bg-muted/30 transition-colors"
+                          className="hover:bg-[#4F7BFF]/[0.06] transition-colors"
                         >
                           <TableCell>
                             <div className="flex items-center gap-2 font-mono">
@@ -240,7 +247,7 @@ export default async function Page({
                           <TableCell className="text-center">
                             <DuoTierBadge tier={row.duoTier} />
                           </TableCell>
-                          <TableCell className="text-right tabular-nums font-semibold">
+                          <TableCell className="text-right tabular-nums font-semibold text-[#93B0FF]">
                             {formatPercent(row.winRate)}
                           </TableCell>
                           <TableCell className="text-right tabular-nums text-muted-foreground">
